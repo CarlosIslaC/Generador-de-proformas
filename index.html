@@ -10,9 +10,10 @@
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Condensed:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Condensed:wght@500;600;700&amp;display=block" rel="stylesheet">
 <style>
 doc-page:not(:defined){visibility:hidden}
+doc-page{--doc-hdr-pad:0.14in !important;--doc-ftr-pad:0.14in !important}
 body{margin:0;font-family:'Barlow',system-ui,sans-serif;color:#1a1a1a;background:#e8e8e6}
 a{color:#C8871B;text-decoration:none}
 a:hover{color:#8a5c0d}
@@ -49,7 +50,7 @@ input,textarea,button{font-family:'Barlow',system-ui,sans-serif}
         <span style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#8d9197;font-weight:700">Trabajo</span>
         <textarea rows="2" value="{{ f.trabajo }}" onChange="{{ onTrabajo }}" style="background:#1c1e22;border:1px solid #33363b;border-radius:2px;color:#ffffff;font-size:13px;padding:9px 10px;outline:none;resize:vertical" style-focus="border-color:#E9A13B"></textarea>
       </label>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px">
         <label style="display:flex;flex-direction:column;gap:5px">
           <span style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#8d9197;font-weight:700">Área</span>
           <input type="text" value="{{ f.area }}" onChange="{{ onArea }}" style="background:#1c1e22;border:1px solid #33363b;border-radius:2px;color:#ffffff;font-size:13px;padding:9px 10px;outline:none" style-focus="border-color:#E9A13B">
@@ -83,7 +84,7 @@ input,textarea,button{font-family:'Barlow',system-ui,sans-serif}
         <span style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#8d9197;font-weight:700">Nota bajo el precio</span>
         <textarea rows="2" value="{{ f.nota }}" onChange="{{ onNota }}" style="background:#1c1e22;border:1px solid #33363b;border-radius:2px;color:#ffffff;font-size:12px;padding:9px 10px;outline:none;resize:vertical" style-focus="border-color:#E9A13B"></textarea>
       </label>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px">
         <label style="display:flex;flex-direction:column;gap:5px">
           <span style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#8d9197;font-weight:700">DNI contratista</span>
           <input type="text" value="{{ f.dni }}" onChange="{{ onDni }}" style="background:#1c1e22;border:1px solid #33363b;border-radius:2px;color:#ffffff;font-size:13px;padding:9px 10px;outline:none" style-focus="border-color:#E9A13B">
@@ -278,7 +279,8 @@ class Component extends DCLogic {
     const apilado = window.innerWidth <= 900;
     const ancho = shell ? shell.clientWidth : window.innerWidth;
     const disponible = (apilado ? ancho : ancho - (panel ? panel.offsetWidth : 380)) - 40;
-    const z = Math.min(1, Math.max(0.34, disponible / 794));
+    const anchoDesk = 794 + 48; // hoja A4 + padding de escritorio de doc-page
+    const z = Math.min(1, Math.max(0.34, disponible / anchoDesk));
     zona.style.zoom = String(z);
     zona.style.maxHeight = apilado ? 'none' : 'calc(100vh / ' + z + ')';
     if (!this._ro && window.ResizeObserver && shell) {
@@ -289,6 +291,7 @@ class Component extends DCLogic {
 
   componentDidMount() {
     [0, 60, 300, 1200].forEach(t => setTimeout(() => { this.remedirDoc(); this.ajustarZoom(); }, t));
+    window.addEventListener('beforeprint', () => this.remedirDoc());
     this._onResize = () => this.ajustarZoom();
     window.addEventListener('resize', this._onResize);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => this.remedirDoc());
