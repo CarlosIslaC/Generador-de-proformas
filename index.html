@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Condensed:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+doc-page:not(:defined){visibility:hidden}
+body{margin:0;font-family:'Barlow',system-ui,sans-serif;color:#1a1a1a;background:#e8e8e6}
+a{color:#C8871B;text-decoration:none}
+a:hover{color:#8a5c0d}
+input,textarea,button{font-family:'Barlow',system-ui,sans-serif}
+@media print{ *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important} #panel-formulario{display:none !important} #zona-doc{padding:0 !important;overflow:visible !important;zoom:1 !important;max-height:none !important} #app-shell{display:block !important} }
+@media (max-width:900px){
+  #app-shell{flex-direction:column !important}
+  #panel-formulario{flex:1 1 auto !important;max-height:none !important;width:auto !important}
+  #zona-doc{max-height:none !important}
+}
+</style>
+<script src="./doc-page.js"></script>
+</helmet>
+<div id="app-shell" style="display:flex;align-items:stretch;min-height:100vh;background:#e8e8e6">
+
+  <aside id="panel-formulario" style="flex:0 1 380px;min-width:0;width:380px;box-sizing:border-box;background:#111214;color:#e8e9ea;padding:26px 24px 40px;display:flex;flex-direction:column;gap:20px;overflow-y:auto;max-height:100vh">
+    <div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:24px;letter-spacing:0.08em;text-transform:uppercase;line-height:1">Generar proforma</div>
+      <div style="height:3px;width:60px;background:#E9A13B;margin-top:8px"></div>
+      <div style="font-size:11px;color:#8d9197;margin-top:8px;line-height:1.5">Complete los datos. La proforma se actualiza al instante a la derecha.</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <label style="display:flex;flex-direction:column;gap:5px">
+        <span style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#8d9197;font-weight:700">Fecha</span>
+        <input type="date" value="{{ f.fechaISO }}" onChange="{{ onFechaISO }}" style="background:#1c1e22;border:1px solid #33363b;border-radius:2px;color:#ffffff;font-size:13px;padding:9px 10px;outline:none;color-scheme:dark" style-focus="border-color:#E9A13B">
+        <span style="font-size:10.5px;color:#8d9197">En la proforma se imprime: {{ fechaTxt }}</span>
+      </label>
+      <label style="display:flex;flex-direction:column;gap:5px">
+        <span style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#8d9197;font-weight:700">Cliente</span>
+        <input type="text" value="{{ f.cliente }}" onChange="{{ onCliente }}" style="background:#1c1e22;border:1px solid #33363b;border-radius:2px;color:#ffffff;font-size:13px;padding:9px 10px;outline:none" style-focus="border-color:#E9A13B">
+      </label>
+      <label style="display:flex;flex-direction:column;gap:5px">
+        <span style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#8d9197;font-weight:700">Trabajo</span>
+        <textarea rows="2" value="{{ f.trabajo }}" onChange="{{ onTrabajo }}" style="background:#1c1e22;border:1px solid #33363b;border-radius:2px;color:#ffffff;font-size:13px;padding:9px 10px;outline:none;resize:vertical" style-focus="border-color:#E9A13B"></textarea>
+      </label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <label style="display:flex;flex-direction:column;gap:5px">
+          <span style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#8d9197;font-weight:700">Área</span>
+          <input type="text" value="{{ f.area }}" onChange="{{ onArea }}" style="background:#1c1e22;border:1px solid #33363b;border-radius:2px;color:#ffffff;font-size:13px;padding:9px 10px;outline:none" style-focus="border-color:#E9A13B">
+        </label>
+        <label style="display:flex;flex-direction:column;gap:5px">
+          <span style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#8d9197;font-weight:700">Precio (S/)</span>
+          <input type="text" value="{{ f.precio }}" onChange="{{ onPrecio }}" style="background:#1c1e22;border:1px solid #33363b;border-radius:2px;color:#ffffff;font-size:13px;padding:9px 10px;outline:none" style-focus="border-color:#E9A13B">
+        </label>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;border-top:1px solid #33363b;padding-top:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <span style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#E9A13B;font-weight:700">Partidas técnicas</span>
+        <button type="button" onClick="{{ addItem }}" style="background:#E9A13B;border:none;border-radius:2px;color:#111214;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:7px 11px;cursor:pointer" style-hover="background:#f5b455">+ Añadir</button>
+      </div>
+      <sc-for list="{{ items }}" as="it" hint-placeholder-count="3">
+        <div style="background:#1c1e22;border:1px solid #2a2d32;border-left:3px solid #E9A13B;border-radius:2px;padding:11px 12px;display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:#E9A13B">{{ it.num }}</span>
+            <input type="text" value="{{ it.titulo }}" onChange="{{ it.onTitulo }}" placeholder="Título" style="flex:1;background:#111214;border:1px solid #33363b;border-radius:2px;color:#ffffff;font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:7px 9px;outline:none;min-width:0" style-focus="border-color:#E9A13B">
+            <button type="button" onClick="{{ it.onRemove }}" style="background:transparent;border:1px solid #33363b;border-radius:2px;color:#8d9197;font-size:13px;line-height:1;padding:6px 9px;cursor:pointer" style-hover="border-color:#E9A13B;color:#E9A13B">×</button>
+          </div>
+          <textarea rows="2" value="{{ it.detalle }}" onChange="{{ it.onDetalle }}" placeholder="Detalle técnico (una línea por especificación)" style="background:#111214;border:1px solid #33363b;border-radius:2px;color:#e8e9ea;font-size:12px;padding:8px 9px;outline:none;resize:vertical;line-height:1.5" style-focus="border-color:#E9A13B"></textarea>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;border-top:1px solid #33363b;padding-top:16px">
+      <label style="display:flex;flex-direction:column;gap:5px">
+        <span style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#8d9197;font-weight:700">Nota bajo el precio</span>
+        <textarea rows="2" value="{{ f.nota }}" onChange="{{ onNota }}" style="background:#1c1e22;border:1px solid #33363b;border-radius:2px;color:#ffffff;font-size:12px;padding:9px 10px;outline:none;resize:vertical" style-focus="border-color:#E9A13B"></textarea>
+      </label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <label style="display:flex;flex-direction:column;gap:5px">
+          <span style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#8d9197;font-weight:700">DNI contratista</span>
+          <input type="text" value="{{ f.dni }}" onChange="{{ onDni }}" style="background:#1c1e22;border:1px solid #33363b;border-radius:2px;color:#ffffff;font-size:13px;padding:9px 10px;outline:none" style-focus="border-color:#E9A13B">
+        </label>
+        <label style="display:flex;flex-direction:column;gap:5px">
+          <span style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#8d9197;font-weight:700">DNI cliente</span>
+          <input type="text" value="{{ f.dniCliente }}" onChange="{{ onDniCliente }}" placeholder="Dejar vacío para firmar a mano" style="background:#1c1e22;border:1px solid #33363b;border-radius:2px;color:#ffffff;font-size:13px;padding:9px 10px;outline:none" style-focus="border-color:#E9A13B">
+        </label>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:9px;border-top:1px solid #33363b;padding-top:16px">
+      <button type="button" onClick="{{ imprimir }}" style="background:#E9A13B;border:none;border-radius:2px;color:#111214;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:13px 14px;cursor:pointer" style-hover="background:#f5b455">Generar PDF / Imprimir</button>
+      <button type="button" onClick="{{ limpiar }}" style="background:transparent;border:1px solid #33363b;border-radius:2px;color:#8d9197;font-size:10px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;padding:10px 14px;cursor:pointer" style-hover="border-color:#8d9197;color:#e8e9ea">Vaciar formulario</button>
+      <div style="font-size:10px;color:#5f6369;line-height:1.5">Los datos quedan guardados en este navegador.</div>
+    </div>
+  </aside>
+
+  <div id="zona-doc" style="flex:1;min-width:0;overflow:auto;max-height:100vh">
+<doc-page size="a4" margin="0">
+<div slot="header" data-screen-label="Cabecera" style="background:#ffffff;font-family:'Barlow',sans-serif;color:#1a1a1a;width:210mm;max-width:210mm;box-sizing:border-box;overflow:hidden">
+  <header style="display: flex; align-items: stretch; background: #111214; color: #ffffff; padding: 26px 32px 24px; gap: 22px; position: relative">
+    <div style="width:112px;flex:0 0 112px;display:flex;align-items:center;justify-content:center;background:#ffffff;border-radius:2px;padding:6px">
+      <img src="./pasted-1786377489535-0-msnf18la-vxhg.png" alt="Metálicas Pairazaman" style="width:100%;height:auto;display:block">
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0">
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:34px;letter-spacing:0.06em;line-height:1;text-transform:uppercase">Metálicas Pairazaman</div>
+        <div style="height:3px;width:88px;background:#E9A13B;margin-top:9px"></div>
+        <div style="font-size:11.5px;letter-spacing:0.24em;text-transform:uppercase;color:#E9A13B;font-weight:600;margin-top:9px">Diseño · Fabricación · Mantenimiento</div>
+      </div><div style="font-size: 13px; line-height: 1.5; color: #b9bcc1; max-width: 100%; min-width: 0">Fabricación, montaje y mantenimiento de estructuras en general<br /><b style="font-weight:600;color:#d6d8db">Carpintería metálica · Acero inoxidable</b></div>
+      
+    </div>
+    <div style="flex:0 0 190px;display:flex;flex-direction:column;justify-content:center;gap:9px;border-left:1px solid #33363b;padding-left:22px">
+      <div>
+        <div style="font-size:8.5px;letter-spacing:0.22em;text-transform:uppercase;color:#75797f;font-weight:600">Oficina</div>
+        <div style="font-size:11.5px;line-height:1.4;color:#e8e9ea">Pablo Federico Llontop N.° 883 — Pacasmayo</div>
+      </div>
+      <div>
+        <div style="font-size:8.5px;letter-spacing:0.22em;text-transform:uppercase;color:#75797f;font-weight:600">Celular</div>
+        <div style="font-size:11.5px;color:#e8e9ea">947 959 199</div>
+      </div>
+      <div>
+        <div style="font-size:8.5px;letter-spacing:0.22em;text-transform:uppercase;color:#75797f;font-weight:600">E-mail</div>
+        <div style="font-size:11.5px;color:#e8e9ea">eduruizx23@gmail.com</div>
+      </div>
+    </div>
+</header>
+
+  <div style="height:4px;background:#E9A13B"></div>
+</div>
+
+<div slot="footer" data-screen-label="Pie" style="background:#ffffff;width:210mm;max-width:210mm;box-sizing:border-box;overflow:hidden">
+  <div style="height:2px;background:#E9A13B"></div>
+  <footer style="display:flex;align-items:center;justify-content:space-between;gap:16px;background:#111214;color:#b9bcc1;padding:13px 32px;font-size:9.5px;letter-spacing:0.03em;min-width:0">
+    <div style="color:#ffffff;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;min-width:0">Metálicas Pairazaman</div>
+    <div style="letter-spacing:0.1em;text-transform:uppercase;color:#75797f;min-width:0">Diseño · Fabricación · Mantenimiento</div>
+    <div style="min-width:0;text-align:right">947 959 199 · eduruizx23@gmail.com · Pacasmayo</div>
+  </footer>
+</div>
+
+<div data-screen-label="Proforma" style="font-family:'Barlow',sans-serif;color:#1a1a1a;padding:26px 44px 0;width:210mm;max-width:210mm;box-sizing:border-box">
+
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;border-bottom:1px solid #e3e4e6;padding-bottom:16px">
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:44px;letter-spacing:0.1em;line-height:0.95;text-transform:uppercase">Proforma</div>
+        <div style="font-size:10px;letter-spacing:0.24em;text-transform:uppercase;color:#7c8086;font-weight:600;margin-top:6px">Propuesta comercial de fabricación</div>
+      </div>
+      <div style="display:flex;gap:34px;padding-bottom:4px">
+        <div>
+          <div style="font-size:8.5px;letter-spacing:0.22em;text-transform:uppercase;color:#8d9197;font-weight:600">Fecha</div>
+          <div style="font-size:14px;font-weight:600;margin-top:3px">{{ fechaTxt }}</div>
+        </div>
+        <div>
+          <div style="font-size:8.5px;letter-spacing:0.22em;text-transform:uppercase;color:#8d9197;font-weight:600">Cliente</div>
+          <div style="font-size:14px;font-weight:600;margin-top:3px">{{ f.cliente }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:0;margin-top:24px;background:#f6f6f5;border-left:4px solid #E9A13B">
+      <div style="flex:1;padding:18px 22px">
+        <div style="font-size:9px;letter-spacing:0.24em;text-transform:uppercase;color:#8d9197;font-weight:700">Detalle del proyecto — Trabajo</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:600;line-height:1.15;margin-top:6px">{{ f.trabajo }}</div>
+      </div>
+      <div style="flex:0 0 130px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding:18px 22px;border-left:1px solid #e3e4e6">
+        <div style="font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#8d9197;font-weight:700">Área</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:700;line-height:1;margin-top:4px">{{ f.area }}</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;margin-top:22px">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;white-space:nowrap">Descripción técnica y alcance</div>
+      <div style="flex:1;height:1px;background:#e3e4e6"></div>
+      <div style="font-size:9.5px;letter-spacing:0.2em;text-transform:uppercase;color:#8d9197;font-weight:600">Fabricación e instalación</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;margin-top:14px;border-top:1px solid #e3e4e6">
+      <sc-for list="{{ items }}" as="it" hint-placeholder-count="5">
+        <div style="display:grid;grid-template-columns:26px 150px 1fr;align-items:baseline;gap:0 14px;padding:13px 0;border-bottom:1px solid #ededee;break-inside:avoid">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:#E9A13B;letter-spacing:0.04em">{{ it.num }}</div>
+          <div style="font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase">{{ it.titulo }}</div>
+          <div style="font-size:13.5px;line-height:1.5;color:#3a3d42;white-space:pre-line">{{ it.detalle }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:block;break-inside:avoid;page-break-inside:avoid;margin-top:30px">
+    <div style="display:flex;align-items:stretch;background:#f6f6f5;border:1px solid #e3e4e6;border-left:4px solid #E9A13B;break-inside:avoid;page-break-inside:avoid">
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:20px 24px">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase">Inversión total</div>
+        <div style="font-size:11px;line-height:1.5;color:#7c8086;margin-top:4px">{{ f.nota }}</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:flex-end;padding:20px 26px;background:#111214;min-width:230px;flex:0 0 auto;-webkit-print-color-adjust:exact;print-color-adjust:exact">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#ffffff;line-height:1;display:flex;align-items:baseline;gap:8px">
+          <span style="font-size:22px;color:#E9A13B">S/</span>
+          <span style="font-size:46px;letter-spacing:0.01em">{{ precioFmt }}</span>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:56px;padding:34px 0 20px;break-inside:avoid;page-break-inside:avoid">
+      <div>
+        <div style="height:46px"></div>
+        <div style="border-top:1px solid #1a1a1a;padding-top:8px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase">Contratista</div>
+          <div style="font-size:11.5px;color:#7c8086;margin-top:3px">Nombre y firma</div>
+          <div style="font-size:11.5px;color:#3a3d42;margin-top:6px;font-weight:600">DNI: {{ f.dni }}</div>
+        </div>
+      </div>
+      <div>
+        <div style="height:46px"></div>
+        <div style="border-top:1px solid #1a1a1a;padding-top:8px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase">Cliente</div>
+          <div style="font-size:11.5px;color:#7c8086;margin-top:3px">Nombre y firma</div>
+          <div style="font-size:11.5px;color:#3a3d42;margin-top:6px;font-weight:600">DNI: {{ dniClienteTxt }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</doc-page>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const DEFAULTS = {
+  fechaISO: '2023-01-09',
+  cliente: 'Jimy Mejía',
+  trabajo: 'Fabricación de techo metálico con Aluzinc',
+  area: '130 m²',
+  precio: '8000',
+  nota: 'Incluye fabricación, materiales, montaje e instalación según la descripción técnica.',
+  dni: '72470722',
+  dniCliente: '',
+  items: [
+    { titulo: 'Postes', detalle: 'Tubo cuadrado de 4" x 2 m con plancha anclada.' },
+    { titulo: 'Viguetas', detalle: 'Tubo cuadrado 1 1/2" x 1.5 mm galvanizado.' },
+    { titulo: 'Cobertura', detalle: 'Aluzinc aluminio TR4 0.40 x 1.08 x 6.00 mts.\nAutoperforantes de 10 x 1 1/2".' },
+    { titulo: 'Pintado', detalle: 'Base al aceite gris.\nAcabado gloss.' },
+    { titulo: 'Canaleta para el agua', detalle: 'Plancha galvanizada 1/24 mm.\nDoblado en "U" a medida.' }
+  ]
+};
+const KEY = 'proforma-pairazaman-v1';
+const DIAS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function formatearFecha(iso) {
+  if (!iso) return '';
+  const p = String(iso).split('-');
+  if (p.length !== 3) return String(iso);
+  const d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+  if (isNaN(d.getTime())) return String(iso);
+  return DIAS[d.getDay()] + ' ' + String(d.getDate()).padStart(2, '0') + ' de ' + MESES[d.getMonth()] + ' de ' + d.getFullYear();
+}
+
+class Component extends DCLogic {
+  state = { f: JSON.parse(JSON.stringify(DEFAULTS)) };
+
+  remedirDoc() {
+    const el = document.querySelector('doc-page');
+    if (el && typeof el._measure === 'function') { try { el._measure(); } catch (e) {} }
+  }
+
+  componentDidUpdate() { this.remedirDoc(); }
+
+  ajustarZoom() {
+    const zona = document.getElementById('zona-doc');
+    if (!zona) return;
+    const shell = document.getElementById('app-shell');
+    const panel = document.getElementById('panel-formulario');
+    const apilado = window.innerWidth <= 900;
+    const ancho = shell ? shell.clientWidth : window.innerWidth;
+    const disponible = (apilado ? ancho : ancho - (panel ? panel.offsetWidth : 380)) - 40;
+    const z = Math.min(1, Math.max(0.34, disponible / 794));
+    zona.style.zoom = String(z);
+    zona.style.maxHeight = apilado ? 'none' : 'calc(100vh / ' + z + ')';
+    if (!this._ro && window.ResizeObserver && shell) {
+      this._ro = new ResizeObserver(() => this.ajustarZoom());
+      this._ro.observe(shell);
+    }
+  }
+
+  componentDidMount() {
+    [0, 60, 300, 1200].forEach(t => setTimeout(() => { this.remedirDoc(); this.ajustarZoom(); }, t));
+    this._onResize = () => this.ajustarZoom();
+    window.addEventListener('resize', this._onResize);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => this.remedirDoc());
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) this.setState({ f: Object.assign({}, DEFAULTS, JSON.parse(raw)) });
+    } catch (e) {}
+  }
+
+  componentWillUnmount() {
+    if (this._onResize) window.removeEventListener('resize', this._onResize);
+    if (this._ro) this._ro.disconnect();
+  }
+
+  save(f) {
+    this.setState({ f });
+    try { localStorage.setItem(KEY, JSON.stringify(f)); } catch (e) {}
+  }
+
+  set(key) {
+    return (ev) => this.save(Object.assign({}, this.state.f, { [key]: ev.target.value }));
+  }
+
+  setItem(i, key) {
+    return (ev) => {
+      const items = this.state.f.items.map((it, n) => n === i ? Object.assign({}, it, { [key]: ev.target.value }) : it);
+      this.save(Object.assign({}, this.state.f, { items }));
+    };
+  }
+
+  renderVals() {
+    const f = this.state.f;
+    const n = parseFloat(String(f.precio).replace(/[^0-9.]/g, ''));
+    const precioFmt = isNaN(n) ? String(f.precio || '') : n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const items = (f.items || []).map((it, i) => ({
+      num: String(i + 1).padStart(2, '0'),
+      titulo: it.titulo,
+      detalle: it.detalle,
+      onTitulo: this.setItem(i, 'titulo'),
+      onDetalle: this.setItem(i, 'detalle'),
+      onRemove: () => this.save(Object.assign({}, f, { items: f.items.filter((_, n2) => n2 !== i) }))
+    }));
+    return {
+      f, items, precioFmt, fechaTxt: formatearFecha(f.fechaISO),
+      onFechaISO: this.set('fechaISO'),
+      dniClienteTxt: (f.dniCliente || '').trim() || '______________________',
+      onDniCliente: this.set('dniCliente'),
+      onFecha: this.set('fecha'), onCliente: this.set('cliente'), onTrabajo: this.set('trabajo'),
+      onArea: this.set('area'), onPrecio: this.set('precio'), onNota: this.set('nota'), onDni: this.set('dni'),
+      addItem: () => this.save(Object.assign({}, f, { items: (f.items || []).concat([{ titulo: 'Nueva partida', detalle: '' }]) })),
+      imprimir: () => window.print(),
+      limpiar: () => this.save({ fecha: '', cliente: '', trabajo: '', area: '', precio: '', nota: '', dni: '', dniCliente: '', items: [{ titulo: '', detalle: '' }] })
+    };
+  }
+}
+
+</script>
+</body>
+</html>
